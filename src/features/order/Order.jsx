@@ -8,6 +8,7 @@ import { getOrder } from '../../services/apiRestaurant';
 import { useLoaderData, useFetcher } from 'react-router-dom';
 import OrderItem from './OrderItem';
 import { useEffect } from 'react';
+import UpdateOrder from './UpdateOrder';
 // import UpdateOrder from './UpdateOrder';
 
 function Order() {
@@ -20,6 +21,7 @@ function Order() {
     },
     [fetcher],
   );
+
   const {
     id,
     status,
@@ -87,7 +89,7 @@ function Order() {
         </p>
       </div>
 
-      {/* {!priority && <UpdateOrder order={order} />} */}
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
