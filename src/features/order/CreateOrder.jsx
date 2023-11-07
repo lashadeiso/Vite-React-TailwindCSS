@@ -25,15 +25,18 @@ function CreateOrder() {
   const isSubmiting = navigation.state === 'submitting';
   const formErrors = useActionData();
   const dispatch = useDispatch();
-  const username = useSelector((state) => state.user.userName);
-
+  const {
+    username,
+    status: addressStatus,
+    position,
+    address,
+  } = useSelector((state) => state.user);
+  const isLoadingAddress = addressStatus === 'loading';
   if (!cart.length) return <EmptyCart />;
 
   return (
     <div className="px-4 py-6">
       <h2 className="mb-8 text-xl font-semibold">Ready to order? Lets go!</h2>
-
-      <button onClick={() => dispatch(fetchAddress())}>Get Position</button>
 
       <Form method="POST" action="/order/new">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -59,7 +62,7 @@ function CreateOrder() {
           </div>
         </div>
 
-        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sm:basis-40">Address</label>
           <div className="grow">
             <input
@@ -67,8 +70,25 @@ function CreateOrder() {
               name="address"
               required
               className="input w-full"
+              disabled={isLoadingAddress}
+              defaultValue={address}
             />
           </div>
+
+          {!position.latitude && !position.longitute && (
+            <span className="absolute right-2 z-10">
+              <Button
+                disabled={isLoadingAddress}
+                type="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(fetchAddress());
+                }}
+              >
+                Get Position
+              </Button>
+            </span>
+          )}
         </div>
 
         <div className="mb-12 flex items-center gap-5">
@@ -85,7 +105,7 @@ function CreateOrder() {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
-          <Button disabled={isSubmiting} type="primary">
+          <Button disabled={isSubmiting || isLoadingAddress} type="primary">
             {isSubmiting
               ? 'Placing order... '
               : `Order now for ${formatCurrency(totalPrice)}`}
