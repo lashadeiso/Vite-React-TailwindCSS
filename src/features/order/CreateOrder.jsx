@@ -30,6 +30,7 @@ function CreateOrder() {
     status: addressStatus,
     position,
     address,
+    error: errorAddress,
   } = useSelector((state) => state.user);
   const isLoadingAddress = addressStatus === 'loading';
   if (!cart.length) return <EmptyCart />;
@@ -73,10 +74,15 @@ function CreateOrder() {
               disabled={isLoadingAddress}
               defaultValue={address}
             />
+            {addressStatus === 'error' && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {errorAddress}
+              </p>
+            )}
           </div>
 
-          {!position.latitude && !position.longitute && (
-            <span className="absolute right-2 z-10">
+          {!position.latitude && !position.longitude && (
+            <span className="absolute right-[4px] top-[35px] z-10 sm:top-[3px] md:top-[5px]">
               <Button
                 disabled={isLoadingAddress}
                 type="small"
@@ -104,7 +110,17 @@ function CreateOrder() {
         </div>
 
         <div>
-          <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+          {/* ეს 2 hidden ინფუთი მაქვს რომ დაგვჭირდეს cart და position ი სადმე */}
+          <input name="cart" type="hidden" value={JSON.stringify(cart)} />
+          <input
+            name="position"
+            type="hidden"
+            value={
+              position.latitude && position.longitude
+                ? `${position.latitude}, ${position.longitude}`
+                : ''
+            }
+          />
           <Button disabled={isSubmiting || isLoadingAddress} type="primary">
             {isSubmiting
               ? 'Placing order... '
@@ -125,6 +141,8 @@ export async function action({ request }) {
     cart: JSON.parse(data.cart),
     priority: data.priority === 'true',
   };
+
+  // აი მაგალითად აქ რო დავბეჭდოთ order ვნახავთ იმ 2 დაჰაიდენებულ input ს
 
   const errors = {};
 
